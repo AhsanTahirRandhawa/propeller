@@ -1,5 +1,6 @@
 (ns propeller.utils
-  (:require [clojure.zip :as zip]))
+  (:require [clojure.zip :as zip]
+            [propeller.tools.math :as math]))
 
 (defn first-non-nil
   "Returns the first non-nil values from the collection, or returns `nil` if
@@ -37,6 +38,17 @@
       (instruction)
       instruction)))
 
+(defn binomial [rate size]
+  (loop [iteration 0 successes 0]
+    (if (>= iteration size)
+      successes
+      (recur (inc iteration) (if (< (rand) rate)
+                               (inc successes)
+                               successes)))
+    ))
+
+(defn random-indices-generator [num-of-indices plushy-size]
+  (frequencies (repeatedly num-of-indices #(dec (rand-int (+ plushy-size 1))))))
 
 (defn count-points
   "Returns the number of points in tree, where each atom and each pair of parentheses
