@@ -72,6 +72,32 @@
                  [%])
               plushy)))
 
+(defn uniform-addition-at-random-indices
+  "Returns plushy with new instructions possibly added
+   at random indices(can be repeated)."
+
+  [plushy instructions umad-rate]
+  (let [size (count plushy)
+        indices (utils/random-indices-generator (utils/binomial umad-rate size) size)]
+    (flatten
+      (conj
+        (map-indexed #(seq [%2 (repeatedly (get indices %1 0) (fn [] (utils/random-instruction instructions)))]) plushy)
+        (repeatedly (get indices -1 0) #(utils/random-instruction instructions));to add instructions at the start of plushy
+        )))
+  )
+
+(defn uniform-deletion-at-random-indices
+  "Randomly deletes instructions from plushy with expected value of deletion being the deletion rate
+  - calculated from the umad addition rate."
+  ;currently basically the same as uniform deletion but can be changed depending upon which distribution we use
+
+  [plushy umad-rate]
+  (if (zero? umad-rate)
+    plushy
+    (propeller.simplification/delete-k-random (utils/binomial (/ 1 (+ 1 (/ 1 umad-rate))) (count plushy)) plushy)
+    ))
+
+
 (defn uniform-replacement
   "Returns plushy with new instructions possibly replacing existing
    instructions."
@@ -156,6 +182,11 @@
        (-> (:plushy (selection/select-parent pop argmap))
            (uniform-addition (:instructions argmap) (:umad-rate argmap))
            (uniform-deletion (:umad-rate argmap)))
+       ;
+       :umad-at-random-indices
+       (-> (:plushy (selection/select-parent pop argmap))
+           (uniform-addition-at-random-indices (:instructions argmap) (:umad-rate argmap))
+           (uniform-deletion-at-random-indices (:umad-rate argmap)))
        ;
        :rumad
        (let [parent-genome (:plushy (selection/select-parent pop argmap))
