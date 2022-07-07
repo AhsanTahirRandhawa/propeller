@@ -186,7 +186,7 @@
        :umad-at-random-indices
        (-> (:plushy (selection/select-parent pop argmap))
            (uniform-addition-at-random-indices (:instructions argmap) (:umad-rate argmap))
-           (uniform-deletion-at-random-indices (:umad-rate argmap)))
+           (uniform-deletion (:umad-rate argmap)))
        ;
        :rumad
        (let [parent-genome (:plushy (selection/select-parent pop argmap))
